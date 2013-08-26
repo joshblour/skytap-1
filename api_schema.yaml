@@ -1,0 +1,981 @@
+#TODO:NLA Resources to document:
+#
+# label
+# schedule
+# quota
+# report
+# account
+# ip_range
+# access_policy
+# activation
+# notification_rule
+# user_notificiation_rule
+# password_reset
+# share
+# sso_policy
+# validation
+# share
+# project
+# group
+
+asset:
+  description: |
+      An asset is a file you upload to support your work in Skytap Cloud.
+
+      Assets may include nightly builds, ISOs, test data, training manuals or
+      any other files. Skytap Cloud also provides a set of public assets.
+  actions:
+    update:
+      id_required: true
+      params:
+      - name:
+          description: human-readable name for the asset
+  skip_actions:
+    - create
+
+credential:
+  parent_resources:
+  - vm
+  description: |
+      A credential belongs to a VM and represents security credentials such as passwords.
+
+      Credentials can take any arbitrary text value. They are shown when using
+      SmartClient to view a VM.
+  actions:
+    create:
+      params:
+      - text:
+          description: username, password, or other contents of this credential
+          required: true
+          examples:
+          - "root/password123"
+          - "clever password"
+  skip_actions:
+    - show
+    - update
+
+configuration:
+  description: |
+      A configuration is a virtual workspace that contains one or more virtual
+      machines (VM), one or more networks, and network connections.
+
+      A configuration also defines how VMs leverage the public internet and/or
+      secure access via VPN access to a corporate data center. A configuration
+      may be running, suspended, stopped or powered off. You may save the exact
+      state of a configuration as a template.
+  actions:
+    create:
+      description: |
+        Create a configuration based on the specified template.
+      params:
+      - template_id:
+          description: ID of the template to copy
+          required: true
+      - name:
+          description: human-readable name of the configuration; defaults to the name of the template specified
+      - vm_ids:
+          description: comma-separated sequence of the template VMs to include; must be flanked by square brackets and not include whitespace
+          examples:
+          - "[123,456,78]"
+          - "[36]"
+    update:
+      id_required: true
+      params:
+      - name:
+          description: human-readable name of the configuration
+      - runstate:
+          description: "the runtime state to bring the configuration to; one of the following: \"running\", \"suspended\", \"stopped\" (using shut down), \"halted\" (using power off)"
+          examples:
+          - "running"
+          - "suspended"
+      - template_id:
+          description: ID of the template to copy into the configuration
+      - vm_ids:
+          description: comma-separated sequence of VMs to include; must be flanked by square brackets and not contain whitespace; provide only with template_id
+          examples:
+          - "[123,456,78]"
+          - "[36]"
+      - suspend_on_idle:
+          description: number of seconds after the configuration was last viewed before it should be auto-suspended
+      - owner:
+          description: ID of the user to assign the configuration to
+      - routable:
+          description: whether to allow all traffic between networks in the configuration
+      - disable_internet:
+          description: whether to disable outbound Internet traffic for VMs in the configuration
+
+export:
+  description: |
+      An export job represents the process of preparing a Skytap template VM to
+      be downloaded to the local filesystem
+  actions:
+    create:
+      description: |
+        Create an export job, allowing Skytap VMs to be downloaded locally.
+
+        The VM must be part of a template and must be powered off.
+
+        Once Skytap has finished processing the VM, the export job's status
+        will be "complete." You may then download the VM file using FTP.
+
+        The name of the downloadable file is "vm.7z," a compressed file in
+        7-Zip format. Once extracted, your VM disk will be present as
+        "session.vmdk" and your VM configuration file will be present as
+        "session.vmx." Depending on the configuration of your VM, there may be
+        other file types.
+
+        See the following page for more information:
+        https://cloud.skytap.com/docs/index.php/Importing_and_Exporting_Virtual_Machines#How_to_Export_VMs_Out_of_Skytap
+      params:
+      - vm_id:
+          description: ID of the template VM to export
+          required: true
+
+import: 
+  description: |
+      An import job represents the process of creating a Skytap template from a
+      local VM file.
+  actions:
+    create: 
+      params: 
+      - template_name: 
+          description: human-readable name of the template to create
+          required: true
+      - template_description: 
+          description: human-readable description of the template to create
+          required: true
+      - network_domain: 
+          description: domain name of the new template's network
+          required: true
+          examples:
+          - "test.net"
+      - network_subnet: 
+          description: subnet of the new template's network
+          required: true
+          examples:
+          - "10.0.0.0/24"
+          - "192.168.0.0/16"
+      - interface_ip: 
+          description: IP address of the new VM
+          required: true
+          examples:
+          - "10.0.0.1"
+          - "192.168.0.1"
+      - interface_hostname:
+          description: hostname of the new VM
+          required: true
+          examples:
+          - "host"
+          - "db-node"
+      - credentials: 
+          description: login credentials for the new VM
+          examples:
+          - "root/password123"
+          - "clever password"
+      - region:
+          description: region into which to import the VM; defaults to US-West
+          examples:
+          - "US-West"
+          - "US-East"
+    update:
+      description: |
+        Update attributes of the specified import.
+      id_required: true
+      params:
+      - status:
+          description: set to "processing" to start the import process
+          examples:
+          - "processing"
+      - template_name: 
+          description: human-readable name of the template to create
+      - template_description: 
+          description: human-readable description of the template to create
+      - network_domain: 
+          description: domain name of the new template's network
+          examples:
+          - "test.net"
+      - network_subnet: 
+          description: subnet of the new template's network
+          examples:
+          - "10.0.0.0/24"
+          - "192.168.0.0/16"
+      - interface_ip: 
+          description: IP address of the new VM
+          examples:
+          - "10.0.0.1"
+          - "192.168.0.1"
+      - interface_hostname:
+          description: hostname of the new VM
+          examples:
+          - "host"
+          - "db-node"
+      - credentials: 
+          description: login credentials for the new VM
+          examples:
+          - "root/password123"
+          - "clever password"
+
+ip:
+  description: |
+      A public IP is a publicly-accessible IP address that can be attached to a VM or VPN.
+
+      Unlike a published service, a public IP address exposes all of the VM's
+      ports to the public Internet, and does so without remapping them.
+  actions:
+    create:
+      description: |
+          Attaches a public IP to the specified VM interface
+
+          The IP address must be in your company's public IP pool. Use the
+          "acquire" command to aquire one.
+      params:
+      - vm_id:
+          description: ID of the VM to which this public IP should be attached
+          required: true
+      - ip:
+          description: public IP address to attach
+          required: true
+      - interface_id:
+          description: ID of the VM interface to which to attach the public IP
+          required: true
+  skip_actions:
+    - show
+    - update
+    - destroy
+
+#TODO:NLA Uncomment after parent resources can be specified.
+interface:
+  parent_resources:
+    - configuration
+    - vm
+  description: |
+      An interface consists of a virtualized network adapter in a VM.
+
+      It is a component of a virtual machine, so operations on network
+      interfaces are implicitly operations on the containing configuration. At
+      the same time, the interface is attached to a virtual network.
+  actions:
+    create:
+      params:
+      - vm_id:
+          description: ID of the VM to which this interface should belong
+          required: true
+      - nic_type:
+          description: |
+              the NIC type of the interface; must be one of the following:
+              pcnet32, vmxnet, vmxnet3, e1000, e1000e; note that not all
+              operating systems support all NIC types; for more details see
+              https://cloud.skytap.com/docs/index.php/Can_I_attach_more_than_one_Network_Adapter_(NIC)_to_my_VM%3F_What_different_types_of_NICs_does_Skytap_support%3F
+    update:
+      description: |
+          Connects the interface to a network, or disconnects from a network
+      id_required: true
+      params:
+      - vm_id:
+          description: ID of the interface's VM
+          required: true
+      - network_id:
+          description: |
+              ID of the network to connect the interface to; if the value
+              is null, then the interface will be disconnected from the current
+              network
+
+#TODO:NLA Uncomment after parent resources can be specified.
+#
+# network:
+#   description: |
+#       A network is a virtual subnet that connects some or all VMs in a configuration.
+
+#       Skytap Cloud allows you to create two types of networks for your
+#       configurations: automatic and manual. Automatic networks are configured
+#       by Skytap Cloud to give you full networking functionality, including
+#       DHCP, DNS, and access to the public Internet from any VM in the
+#       configuration. Manual networks are not configured by Skytap Cloud, and
+#       require the user to specify the network's parameters. As such, manual
+#       networks should be reserved for advanced use cases.
+
+#       For more information, see https://cloud.skytap.com/docs/index.php/Networking
+#   actions:
+#     create:
+#       params:
+#       - configuration_id:
+#           description: ID of the configuration to which the new network will belong
+#           required: true
+#       - name:
+#           description: human-readable name of the network
+#           required: true
+#       - network_type:
+#           description: |
+#               type of network, either "automatic" or "manual"; if not
+#               provided, will be automatic; automatic networks include DHCP,
+#               DNS, and access to the public Internet; manual networks are not
+#               configured by Skytap Cloud
+#       - subnet_addr:
+#           description: address of the subnet, in IPv4 form (X.X.X.X)
+#           required: true
+#           examples:
+#           - "10.0.0.0"
+#           - "192.168.0.0"
+#       - subnet_size:
+#           description: size of the subnet mask as an integer between 16 and 29, inclusive
+#           required: true
+#       - gateway:
+#           description: |
+#               the IP address of the gateway, in IPv4 form (X.X.X.X); required
+#               for manual networks; not allowed for automatic networks; if
+#               provided, must be included in the subnet; if not provided, the
+#               gateway will be the penultimate address of the subnet
+#           required: true
+#           examples:
+#           - "10.2.3.254"
+#       - domain_name:
+#           description: domain name of the network; required for automatic networks; not allowed for manual networks
+#           required: true
+#           examples:
+#           - "test.net"
+#       - tunnelable:
+#           description: whether other networks can create ICNR tunnels to this network
+#       - primary_nameserver:
+#           description: primary IP address of a custom DNS server for this network; not allowed for manual networks
+#           examples:
+#           - "12.34.56.78"
+#       - secondary_nameserver:
+#           description: secondary IP address of a custom DNS server for this network, for redundancy; must also provide primary_nameserver
+#           examples:
+#           - "12.34.60.80"
+#     update:
+#       id_required: true
+#       params:
+#       - configuration_id:
+#           description: ID of this network's configuration or template
+#           required: true
+#       - name:
+#           description: human-readable name of the network
+#       - subnet_addr:
+#           description: address of the subnet, in IPv4 form (X.X.X.X)
+#           examples:
+#           - "10.0.0.0"
+#           - "192.168.0.0"
+#       - subnet_size:
+#           description: size of the subnet mask as an integer between 16 and 29, inclusive
+#       - gateway:
+#           description: |
+#               the IP address of the gateway, in IPv4 form (X.X.X.X); required
+#               for manual networks; not allowed for automatic networks; if
+#               provided, must be included in the subnet; if not provided, the
+#               gateway will be the penultimate address of the subnet
+#           examples:
+#           - "10.2.3.254"
+#       - domain_name:
+#           description: domain name of the network; required for automatic networks; not allowed for manual networks
+#           examples:
+#           - "test.net"
+#       - tunnelable:
+#           description: whether other networks can create ICNR tunnels to this network
+#       - primary_nameserver:
+#           description: primary IP address of a custom DNS server for this network; not allowed for manual networks
+#           examples:
+#           - "12.34.56.78"
+#       - secondary_nameserver:
+#           description: secondary IP address of a custom DNS server for this network, for redundancy; must also provide primary_nameserver
+#           examples:
+#           - "12.34.60.80"
+#   skip_actions:
+#     - create
+
+# network_vpn:
+#   description: |
+#       A network-VPN attachment represents the state of a configuration network
+#       being attached and possibly connected to a VPN.
+
+#       Editing or creating attached networks allows you to manage the network
+#       connections of a VPN. An attached network resource will be contained in
+#       the representation of a VPN resource under a field named
+#       "attached_networks."
+#   actions:
+#     create:
+#       description: Attach a network to a VPN
+#       params:
+#       - vpn_id:
+#           description: ID of the VPN to which the network will be attached
+#           required: true
+#       - network_id:
+#           description: ID of the network to be attached to the VPN
+#           required: true
+#     update:
+#       description: Connect the attached network to the VPN so that traffic will flow over the VPN tunnel, or disconnect.
+#       id_required: true
+#       params:
+#       - vpn_id:
+#           description: ID of the VPN to which the network is attached
+#           required: true
+#       - network_id:
+#           description: ID of the attached network
+#           required: true
+#       - connected:
+#           description: whether the network-VPN attachment should be connected; if false, then it will be disconnected
+#           required: true
+#     show:
+#       id_required: false
+#       params:
+#       - vpn_id:
+#           description: ID of the VPN to which the network is attached
+#           required: true
+#       - network_id:
+#           description: ID of the attached network
+#           required: true
+#     destroy:
+#       id_required: false
+#       description: Detach the network from the VPN
+#       params:
+#       - vpn_id:
+#           description: ID of the VPN to which the network is attached
+#           required: true
+#       - network_id:
+#           description: ID of the attached network
+#           required: true
+
+# note:
+#   description: |
+#       A note is a chunk of human-readable text associated with a configuration.
+#   actions:
+#     index:
+#       params:
+#       #TODO:NLA Need a better way to express that one resource is nested inside another.
+#       - configuration_id:
+#           description: ID of the configuration
+#           required: true
+#     create:
+#       params:
+#       - configuration_id:
+#           description: ID of the configuration to which to attach the note
+#           required: true
+#       - text:
+#           description: human-readable text
+#           required: true
+#   skip_actions:
+#     - update
+#     - index
+
+
+#TODO:NLA Uncomment after parent resources can be specified.
+
+publish_set:
+  parent_resources:
+    - configuration
+  description: |
+      A published set (also called a published URL) is used to share access to
+      one or more VMs in a configuration with people who may not have Skytap
+      accounts.
+
+      Published sets come in "single-URL" or "multiple-URL" varieties. A
+      single-URL published set contains a single URL mapped to a set of VMs,
+      whereas a multiple-URL published set generates a unique URL for each VM
+      in the set.
+
+      For each VM belonging to a published set, you can determine whether a
+      user can view, run, or run and suspend it.
+  actions:
+    create:
+      description: Create a published set for the specified configuration.
+      params:
+        - configuration_id:
+            description: ID of this published set's configuration
+            required: true
+        - name:
+            description: human-readable name of the published set
+            required: true
+        - publish_set_type:
+            description: |
+              type of the published set; specify "single_url" if you want
+              only one URL mapped to the set of VMs, or else "multiple_url" if
+              there should be a unique URL for each VM in the set
+            required: true
+        - vms:
+            description: |
+                array of VM descriptors, each containing the following fields:
+                "vm_ref" - the ID or URL of the VM to include in the set
+                "access" - specifies how the VM may be accessed, either "view_only", "use", or "run_and_use"
+            examples:
+              - "[{\"vm_ref\": 123, \"access\": \"use\"}] (in JSON)"
+              - "<vms><vm><vm-ref>123</vm-ref><access>use</access></vm></vms> (in XML)"
+        - password:
+            description: |
+                access password for the new published set; if provided, then
+                this password must be supplied by the user upon accessing the URL
+        - start_time:
+            description: |
+                start of the allowed daily access window for the published
+                set, expressed in HH:MM format, for hours 0:23 and minutes 0:59;
+                if provided, you must also provide end_time; to delete an access
+                window, specify empty strings for the start_time and end_time
+            examples:
+              - "09:00"
+              - "17:30"
+        - end_time:
+            description: |
+                end of the allowed daily access window for the published set,
+                expressed in HH:MM format, for hours 0:23 and minutes 0:59; if
+                provided, you must also provide start_time; to delete an access
+                window, specify empty strings for the start_time and end_time
+            examples:
+              - "09:00"
+              - "17:30"
+        - time_zone:
+            description: |
+                time zone specified to quality the allowed daily access window;
+                if provided, you must also specify start_time and end_time; if
+                this is not provided, the API caller’s default time zone is used
+            examples:
+              - "Pacific Time (US & Canada)"
+              - "Eastern Time (US & Canada)"
+              - "UTC"
+              - "New Delhi"
+    update:
+      id_required: true
+      params:
+        - name:
+            description: human-readable name of the published set
+            required: true
+        - publish_set_type:
+            description: |
+                type of the published set; specify "single_url" if you want
+                only one URL mapped to the set of VMs, or else "multiple_url" if
+                there should be a unique URL for each VM in the set
+            required: true
+        - vms:
+            description: |
+                array of VM descriptors, each containing the following fields:
+                "vm_ref" - the ID or URL of the VM to include in the set
+                "access" - specifies how the VM may be accessed, either "view_only", "use", or "run_and_use"
+            examples:
+              - "[{\"vm_ref\": 123, \"access\": \"use\"}] (in JSON)"
+              - "<vms><vm><vm-ref>123</vm-ref><access>use</access></vm></vms> (in XML)"
+        - password:
+            description: |
+                access password for the published set; if provided, then this
+                password must be supplied by the user upon accessing the URL
+        - start_time:
+            description: |
+                start of the allowed daily access window for the published
+                set, expressed in HH:MM format, for hours 0:23 and minutes 0:59;
+                if provided, you must also provide end_time; to delete an access
+                window, specify empty strings for the start_time and end_time
+            examples:
+              - "09:00"
+              - "17:30"
+        - end_time:
+            description: |
+                end of the allowed daily access window for the published set,
+                expressed in HH:MM format, for hours 0:23 and minutes 0:59; if
+                provided, you must also provide start_time; to delete an access
+                window, specify empty strings for the start_time and end_time
+            examples:
+              - "09:00"
+              - "17:30"
+        - time_zone:
+            description: |
+                time zone specified to quality the allowed daily access window;
+                if provided, you must also specify start_time and end_time; if
+                this is not provided, the API caller’s default time zone is used
+            examples:
+              - "Pacific Time (US & Canada)"
+              - "Eastern Time (US & Canada)"
+              - "UTC"
+              - "New Delhi"
+
+schedule:
+  description: The schedule resource represents a set of one or more automated actions applied to a configuration or template.
+  actions:
+    create:
+      params:
+      - title:
+          description: name of the schedule
+          required: true
+      - configuration_id: 
+          description: configuration ID
+      - template_id: 
+          description: template ID
+      - start_at:
+          description: |
+            A string specifying when the schedule will execute. 
+              The format for the time is YYYY/MM/DD hh:mm, where YYYY is a four-­‐digit year, 
+              MM is a two-­‐digit month, DD is a two-­‐digit day, hh is a two-­‐digit hour 
+              and mm is a two-­‐digit minute.
+          required: true
+          examples:
+            - 2012/07/28 11:09
+      - end_at:
+          description: A string specifying the end_date of a schedule, only relevant if the schedule is set to recur.
+      - delete_at_end:
+          description: if end_at is set, this boolean determines whether the schedule's configuration will be deleted when the time specified at end_at is reached.
+      - notify_user:
+          description: This boolean determines whether the schedules owner recieves an email after the completion of a successful action.
+      - executions:
+          description: An array of objects that collectively represent an action performed when a schedule is run.
+      - actions:
+          description: scheduled actions
+      - recurring_days:
+          description: an array of days on which the schedule wil occur.
+      - time_zone:
+          description: |
+            A string specifying the time zone in which the scheduled action will run.
+            These are entered as English strings.
+          examples:
+            - Pacific Time (US & Canada)
+          required: true
+            
+      - user:
+          description: A list of key-value pairs representing the owner of the schedule, with the following fields
+          examples:
+            - id
+            - url
+            - login_name
+            - first_name
+            - last_name
+            - email
+
+service:
+  parent_resources:
+    - configuration
+    - vm
+    - interface
+  description: |
+      A published service represents a binding of a port on a VM's virtual network interface to an IP and port that is routable and accessible from the public Internet.
+
+      This mechanism is used to selectively expose ports on the VM to the public Internet.
+  actions:
+    create:
+      params:
+      - vm_id:
+          description: ID of the VM that owns the network interface
+          required: true
+      - interface_id:
+          description: ID of the interface to which the published service should be bound
+          required: true
+      - internal_port:
+          description: |
+              port on the VM to expose to the Internet; for instance, port 22
+              for a standard SSH server or port 80 for a standard web server
+          required: true
+  skip_actions:
+    - update
+
+#TODO:NLA Uncomment after parent resources can be specified.
+# subnet:
+#   description: |
+#       A subnet resource represents a remote subnet associated with a VPN.
+
+#       These will take the form of "included" subnets (subnet ranges to which
+#       traffic from Skytap Cloud will be routed) and "excluded" subnets (subnets
+#       expressly prevented from connecting to Skytap Cloud).
+#   actions:
+#     create:
+#       params:
+#       - vpn_id:
+#           description: ID of the VPN with which to associate this subnet
+#           required: true
+#       - cidr_block:
+#           description: IP range of the subnet, in CIDR block notation
+#           required: true
+#           examples:
+#           - "10.0.0.0/24"
+#           - "77.77.0.0/16"
+#       - excluded:
+#           description: whether the subnet is excluded, that is, expressly prevented from connecting to Skytap Cloud; defaults to false
+#   skip_actions:
+#     - update
+
+template:
+  description: |
+      A template is a read-only definition of a complete virtual data center.
+
+      Templates may be simple, containing only a single VM or quite complex
+      containing hundreds of VMs spanning multiple networks. Configurations are
+      created from templates. Skytap provides public templates which you can
+      use to get started. You can also create your own templates by importing
+      existing virtual machines.
+  actions:
+    create:
+      description: |
+        Create a template based on the specified configuration.
+      params:
+      - configuration_id:
+          description: ID of the configuration to copy
+          required: true
+      - name:
+          description: human-readable name of the template; defaults to the name of the source configuration
+      - description:
+          description: human-readable description of the template
+      - vm_instance_multiselect:
+          description: comma-separated sequence of the configuration VMs to include; must be flanked by square brackets and not include whitespace
+          examples:
+          - "[123,456,78]"
+          - "[36]"
+      - network_multiselect:
+          description: comma-separated sequence of the configuration networks to include; must be flanked by square brackets and not include whitespace
+          examples:
+          - "[123,456,78]"
+          - "[36]"
+      - publish_sets:
+          description: whether published sets in the source configuration should be copied to the template; defaults to true
+    update:
+      id_required: true
+      params:
+      - name:
+          description: human-readable name of the template
+      - description:
+          description: human-readable description of the template
+      - owner:
+          description: ID of the user to which this template should be reassigned; requires admin privileges
+      - reassign_context:
+          description: ID of the project to add this template to when reassigning; must provide "owner" param
+      - tags:
+          description: comma-separated sequence of tags to assign to the template, replacing all existing tags
+          examples:
+          - "one, two, three"
+
+#TODO:NLA Uncomment after parent resources can be specified.
+# tunnel:
+#   description: |
+#       A tunnel represents a route between two networks in different configurations (ICNR).
+#   actions:
+#     create:
+#       description: Create a tunnel between two networks so traffic may be routed between them.
+#       params:
+#       - source_network_id:
+#           description: ID of the source network
+#           required: true
+#       - target_network_id:
+#           description: ID of the target network; this network must have a true value for the "tunnelable" attribute
+#           required: true
+#   skip_actions:
+#     - update
+
+user:
+  description: |
+      A user is an account created for an individual who uses Skytap.
+
+      Apart from user information and login data, the user account is assigned
+      a user role, which defines the access permissions of the account. Users
+      have access to resources they own (e.g. templates, configurations, and
+      assets) or to resources that are part of a project they belong to.
+  actions:
+    create:
+      params:
+      - login_name:
+          description: user's login name
+          required: true
+      - email:
+          description: user's email address
+          required: true
+      - first_name:
+          description: user's first name
+          required: true
+      - last_name:
+          description: user's last name
+          required: true
+      - title:
+          description: user's job title
+      - login_password:
+          description: user's password; if omitted, the user will be asked to enter a password during activation
+      - verify_password:
+          description: confirmation of the login password; must be provided if login_password is present
+      - time_zone:
+          description: user's time zone; defaults to "Pacific Time (US & Canada)"
+          examples:
+          - "Pacific Time (US & Canada)"
+          - "Eastern Time (US & Canada)"
+          - "UTC"
+          - "New Delhi"
+      - wants_email:
+          description: whether the user can be notified by Skytap of product marketing updates and feedback requests
+      - has_public_library:
+          description: whether the user is able to access Skytap public templates and public assets
+      - can_import:
+          description: whether the user can import VMs into Skytap
+      - can_export:
+          description: whether the user can export VMs from Skytap
+      - account_role:
+          description: "user's role; one of the following: \"admin\", \"user_manager\", \"standard_user\" (default), \"restricted_user\""
+    update:
+      id_required: true
+      params:
+      - first_name:
+          description: user's first name
+      - last_name:
+          description: user's last name
+      - title:
+          description: user's job title
+      - login_name:
+          description: user's login name
+      - email:
+          description: user's email address
+      - login_password:
+          description: user's new password (if using JSON); must also provide verify_password
+      - verify_password:
+          description: user's new password (if using JSON); only provide if setting verify_password
+      - password:
+          description: user's new password (if using XML)
+      - time_zone:
+          description: user's time zone
+          examples:
+          - "Pacific Time (US & Canada)"
+          - "Eastern Time (US & Canada)"
+          - "UTC"
+          - "New Delhi"
+      - wants_email:
+          description: whether the user can be notified by Skytap of product marketing updates and feedback requests
+      - has_public_library:
+          description: whether the user is able to access Skytap public templates and public assets
+      - can_import:
+          description: whether the user can import VMs into Skytap
+      - can_export:
+          description: whether the user can export VMs from Skytap
+      - account_role:
+          description: "user's role; one of the following: \"admin\", \"user_manager\", \"standard_user\" (default), \"restricted_user\""
+
+vm:
+  description: |
+      A VM (virtual machine) is a full computer, which runs an operating
+      system and applications.
+
+      VMs have their own virtual resources including CPU, RAM, file system
+      storage, CD/DVD drive, and network interfaces. These resources are all
+      configurable allowing you to create VMs that mirror your production
+      machines easily. The "power" of a VM is measured as Skytap Virtual
+      Machine (SVM) units.
+  actions:
+    update:
+      id_required: true
+      params:
+      - name:
+          description: human-readable name of the VM
+      - runstate:
+          description: |
+              Perform an operation on the VM to bring its state to the
+              specified value.  Must be one of: "running"; "suspended";
+              "stopped" (perform a graceful shutdown of the VM, notifying the
+              OS); "halted" (power off the VM without notifying the OS)
+      - asset_id:
+          description: the ID of the asset to insert into the VM as a CD (ISO)
+      #TODO:NLA Implement this.
+      # - hardware:
+      #     description:
+  skip_actions:
+    - create
+    #TODO:NLA Remove this once parent resource paths are implemented.
+    - index
+
+vpn:
+  description: |
+      A VPN (virtual private network) refers to an IPsec network tunnel
+      connecting a Skytap configuration to an outside server (such as a
+      corporate intranet).
+
+      A VPN resource connects to one logical external endpoint. There may be
+      many Skytap configurations connected simultaneously to one VPN, as long
+      as the network subnets of any two running configurations do not overlap.
+      Additionally, you may create multiple VPN resources if you want to
+      connect your configurations to more than one external endpoint.
+
+      For more details see
+      https://cloud.skytap.com/docs/index.php/Connecting_Your_Corporate_Network_to_Skytap_Cloud
+  actions:
+    create:
+      params:
+      - name:
+          description: human-readable name of the VPN
+          required: true
+      - remote_peer_ip:
+          description: public IP associated with external endpoint
+          required: true
+      - local_peer_ip:
+          description: |
+              public IP associated with Skytap Cloud endpoint; the IP address
+              must be in your company's public IP pool; use the "acquire"
+              command to aquire one
+          required: true
+      - local_subnet:
+          description: range of Skytap configuration IP addresses routed through VPN to external endpoint
+          required: true
+      - phase_1_encryption_algorithm:
+          description: name of phase 1 encryption algorithm; must be one of "3des", "aes", "aes 256"
+          required: true
+      - phase_1_hash_algorithm:
+          description: name of phase 1 hash algorithm; must be one of "md5", "sha1"
+          required: true
+      - phase_1_pre_shared_key:
+          description: phase 1 pre-shared key; must be a string whose length is between 1 and 128, inclusive
+          required: true
+      - phase_1_sa_lifetime:
+          description: value of phase 1 SA lifetime, in seconds, between 1 and 2^31-1, inclusive
+          required: true
+      - phase_1_dh_group:
+          description: name of phase 1 Diffie-Hellman group; must be one of "modp768", "modp1024", "modp1536"
+          required: true
+      - phase_2_encryption_algorithm:
+          description: name of phase 2 encryption algorithm; must be one of "3des", "aes", "aes 256"
+          required: true
+      - phase_2_authentication_algorithm:
+          description: name of phase 2 authentication algorithm; must be one of "hmac_md5", "hmac_sha1"
+          required: true
+      - phase_2_perfect_forward_secrecy:
+          description: whether perfect forward secrecy (PFS) should be used
+          required: true
+      - phase_2_pfs_group:
+          description: name of PFS group; must be provided if and only if phase_2_perfect_forward_secrecy is provided, and one of "modp768" (group 1), "modp1024" (group 2), "modp1536" (group 5)
+          required: true
+      - phase_2_sa_lifetime:
+          description: value of phase 2 SA lifetime, in seconds, between 1 and 2^31-1, inclusive
+          required: true
+      - sa_policy_level:
+          description: name of security policy level; must be one of "use", "require", "unique"
+          required: true
+      - dpd_enabled:
+          description: whether dead peer detection is enabled
+          required: true
+      - maximum_segment_size:
+          description: maximum segment size (MSS); if provided, must be between 536 and 1460, inclusive
+    update:
+      id_required: true
+      params:
+      - enabled:
+          description: whether the VPN is enabled; if the VPN is not enabled, then even if Skytap configurations are connected to it, traffic will not flow over the VPN tunnel to the external endpoint
+      - name:
+          description: human-readable name of the VPN
+      - remote_peer_ip:
+          description: public IP associated with external endpoint
+      - local_peer_ip:
+          description: |
+              public IP associated with Skytap Cloud endpoint; the IP address
+              must be in your company's public IP pool; use the "acquire"
+              command to aquire one
+      - local_subnet:
+          description: range of Skytap configuration IP addresses routed through VPN to external endpoint
+      - phase_1_encryption_algorithm:
+          description: name of phase 1 encryption algorithm; must be one of "3des", "aes", "aes 256"
+      - phase_1_hash_algorithm:
+          description: name of phase 1 hash algorithm; must be one of "md5", "sha1"
+      - phase_1_pre_shared_key:
+          description: phase 1 pre-shared key; must be a string whose length is between 1 and 128, inclusive
+      - phase_1_sa_lifetime:
+          description: value of phase 1 SA lifetime, in seconds, between 1 and 2^31-1, inclusive
+      - phase_1_dh_group:
+          description: name of phase 1 Diffie-Hellman group; must be one of "modp768", "modp1024", "modp1536"
+      - phase_2_encryption_algorithm:
+          description: name of phase 2 encryption algorithm; must be one of "3des", "aes", "aes 256"
+      - phase_2_authentication_algorithm:
+          description: name of phase 2 authentication algorithm; must be one of "hmac_md5", "hmac_sha1"
+      - phase_2_perfect_forward_secrecy:
+          description: whether perfect forward secrecy (PFS) should be used
+      - phase_2_pfs_group:
+          description: name of PFS group; must be provided if and only if phase_2_perfect_forward_secrecy is provided, and one of "modp768" (group 1), "modp1024" (group 2), "modp1536" (group 5)
+      - phase_2_sa_lifetime:
+          description: value of phase 2 SA lifetime, in seconds, between 1 and 2^31-1, inclusive
+      - sa_policy_level:
+          description: name of security policy level; must be one of "use", "require", "unique"
+      - dpd_enabled:
+          description: whether dead peer detection is enabled
+      - maximum_segment_size:
+          description: maximum segment size (MSS); if provided, must be between 536 and 1460, inclusive

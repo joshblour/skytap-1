@@ -1,0 +1,52 @@
+<% if error_msg -%>
+<%= error_msg %>
+
+
+<% end -%>
+<% if command.container -%>
+<%= header('SUBCOMMANDS') %>
+<% subcommands.each do |subcommand| -%>
+     <%= subcommand %>
+<% end -%>
+
+<%#TODO:NLA Only display this message if there are any scenarios/plugins. -%>
+     Scenarios and plugins are highlighted in blue.
+<% else -%>
+<%= header('SYNOPSIS') %>
+     <%= command.synopsis %>
+<% end -%>
+<% if command.description -%>
+
+<%= header('DESCRIPTION') %>
+<%= indent(command.class.description) %>
+<% end -%>
+<% if command.expected_args.present? -%>
+
+<%= header('ARGUMENTS') %>
+<% command.expected_args.each do |name, desc| -%>
+     <%= name.upcase %> - <%= desc %>
+<% end -%>
+<% end -%>
+<% if command.expected_options.present? -%>
+
+<%= header('COMMAND OPTIONS') %>
+<% command.expected_options.each do |name, info| -%>
+     <%= info[:flag_arg] ? "--#{name}=#{info[:flag_arg].upcase.gsub('-', '_')}" : "--#{name}" %> - <%= info[:desc] %>
+<% end -%>
+<% end -%>
+
+<%= header('GLOBAL OPTIONS') %>
+<%= global_options_table %>
+<% if command.parameters.present? -%>
+
+<%= header('PARAMETERS') %>
+     You may provide the following request parameters, either interactively
+     with --ask or using --param or --params-file:
+
+<%= parameters_table %>
+<% end -%>
+<% if error_msg -%>
+
+
+<%= error_msg %>
+<% end -%>
