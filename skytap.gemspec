@@ -11,6 +11,11 @@ Gem::Specification.new do |gem|
   gem.description   = %q{integrates with skytap api}
   gem.summary       = %q{desc}
   gem.homepage      = ""
+  gem.add_dependency 'activesupport'
+  gem.add_dependency 'json_pure'
+  gem.add_dependency 'rainbow'
+  gem.add_dependency 'terminal-table'
+  
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
