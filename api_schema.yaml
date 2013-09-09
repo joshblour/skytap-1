@@ -634,6 +634,43 @@ schedule:
             - first_name
             - last_name
             - email
+            
+project:
+  parent_resources:
+    - assets
+    - configurations
+    - groups
+    - templates
+    - user
+  description: |
+      Projects	are	an	access	permissions	model	used	to	share	configurations,	templates,	and	assets	among	different	
+      users.	The	project	resource	is	a	top-level element	in	the	API	data	model.
+  actions:
+    create:
+      params:
+      - name:
+          description: human friendly name
+          required: true
+      - summary:
+          description: user-defined	description	of project
+      - show_project_members:
+          description: Determines	if projects members	can view list of other project	members
+      - auto_add_role_name:
+          description: Defines "automatic role" for project
+    update:
+      id_required: true
+      params:
+      - name:
+          description: human friendly name
+          required: true
+      - summary:
+          description: user-defined	description	of project
+      - show_project_members:
+          description: Determines	if projects members	can view list of other project	members
+      - auto_add_role_name:
+          description: Defines "automatic role" for project
+
+
 
 service:
   parent_resources:
