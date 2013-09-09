@@ -636,12 +636,6 @@ schedule:
             - email
             
 project:
-  parent_resources:
-    - assets
-    - configurations
-    - groups
-    - templates
-    - user
   description: |
       Projects	are	an	access	permissions	model	used	to	share	configurations,	templates,	and	assets	among	different	
       users.	The	project	resource	is	a	top-level element	in	the	API	data	model.
