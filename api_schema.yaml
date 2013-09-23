@@ -644,7 +644,6 @@ project:
       params:
       - name:
           description: human friendly name
-          required: true
       - summary:
           description: user-defined	description	of project
       - show_project_members:
